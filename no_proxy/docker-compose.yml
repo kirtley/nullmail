@@ -1,0 +1,25 @@
+version: '2'
+networks:
+  nullmail.lan:
+    driver: bridge
+services:
+  nullmail_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nullmail_server
+    restart: always
+    networks:
+      - nullmail.lan
+    ports:
+      - "25:25"
+  nullmail_website:
+    networks:
+      - nullmail.lan
+    image: nginx:alpine
+    container_name: nullmail_website
+    restart: always
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+    ports:
+      - "80:80"

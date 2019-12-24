@@ -1,0 +1,53 @@
+version: '2'
+networks:
+  nullmail.lan:
+    driver: bridge
+  proxy.lan:
+    driver: bridge
+services:
+  nullmail_server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nullmail_server
+    restart: always
+    networks:
+      - nullmail.lan
+    ports:
+      - "25:25"
+  nullmail_website:
+    networks:
+      - proxy.lan
+    image: nginx:alpine
+    container_name: nullmail_website
+    restart: always
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+    environment:
+      - VIRTUAL_HOST=null.${domain_name}
+      - LETSENCRYPT_HOST=null.${domain_name}
+      - LETSENCRYPT_EMAIL=${admin_email}
+  proxy:
+    container_name: proxy
+    image: jwilder/nginx-proxy
+    restart: always
+    networks:
+      - proxy.lan
+    volumes:
+      - /etc/nginx/vhost.d
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /etc/nginx/certs
+    ports:
+      - "80:80"
+      - "443:443"
+  proxy-companion:
+    container_name: proxy-companion
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: always
+    networks:
+      - proxy.lan
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - proxy

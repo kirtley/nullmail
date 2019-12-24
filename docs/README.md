@@ -14,6 +14,7 @@
   2. choose proxy or no_proxy
   3. ./build.sh
   4. Add the following DNS records
+  
     - `MX	{domain_name}	10 null.{domain_name}.	Automatic`
     - `TXT	{domain_name}	"v=spf1 mx a a:null.{domain_name} ip4:{public_ip_address} ?all"`
     - `TXT	_DMARC	"v=DMARC1; p=none; rua=mailto:{admin_email}"`
